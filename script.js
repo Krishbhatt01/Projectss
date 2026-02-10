@@ -1,262 +1,228 @@
-// Initialize configuration
+// Load Config
 const config = window.VALENTINE_CONFIG;
 
-// Validate configuration
-function validateConfig() {
-    const warnings = [];
+// DOM Elements
+const elements = {
+    title: document.getElementById('valentineTitle'),
+    q1: {
+        section: document.getElementById('question1'),
+        text: document.getElementById('question1Text'),
+        yes: document.getElementById('yesBtn1'),
+        no: document.getElementById('noBtn1'),
+        secret: document.getElementById('secretAnswerBtn')
+    },
+    q2: {
+        section: document.getElementById('question2'),
+        text: document.getElementById('question2Text'),
+        meter: document.getElementById('loveMeter'),
+        value: document.getElementById('loveValue'),
+        textVal: document.getElementById('meterText'),
+        msg: document.getElementById('loveMessage'),
+        next: document.getElementById('nextBtn2')
+    },
+    q3: {
+        section: document.getElementById('question3'),
+        text: document.getElementById('question3Text'),
+        yes: document.getElementById('yesBtn3'),
+        no: document.getElementById('noBtn3')
+    },
+    celeb: {
+        section: document.getElementById('celebration'),
+        title: document.getElementById('celebrationTitle'),
+        msg: document.getElementById('celebrationMessage'),
+        emojis: document.getElementById('celebrationEmojis')
+    },
+    music: {
+        btn: document.getElementById('musicToggle'),
+        audio: document.getElementById('bgMusic'),
+        source: document.getElementById('musicSource')
+    }
+};
 
-    // Check required fields
-    if (!config.valentineName) {
-        warnings.push("Valentine's name is not set! Using default.");
-        config.valentineName = "My Love";
+// Initialize Content
+function init() {
+    // Set text content from config
+    elements.title.innerText = `${config.valentineName}, my love...`;
+    
+    // Q1
+    elements.q1.text.innerText = config.questions.first.text;
+    elements.q1.yes.innerText = config.questions.first.yesBtn;
+    elements.q1.no.innerText = config.questions.first.noBtn;
+    elements.q1.secret.innerText = config.questions.first.secretAnswer;
+
+    // Q2
+    elements.q2.text.innerText = config.questions.second.text;
+    elements.q2.textVal.innerText = config.questions.second.startText;
+    elements.q2.next.innerText = config.questions.second.nextBtn;
+
+    // Q3
+    elements.q3.text.innerText = config.questions.third.text;
+    elements.q3.yes.innerText = config.questions.third.yesBtn;
+    elements.q3.no.innerText = config.questions.third.noBtn;
+
+    // Celebration
+    elements.celeb.title.innerText = config.celebration.title;
+    elements.celeb.msg.innerText = config.celebration.message;
+    elements.celeb.emojis.innerText = config.celebration.emojis;
+
+    // Music
+    if (config.music.enabled) {
+        elements.music.source.src = config.music.musicUrl;
+        elements.music.audio.load();
+        elements.music.btn.innerText = config.music.startText;
+    } else {
+        document.getElementById('musicControls').style.display = 'none';
     }
 
-    // Validate colors
-    const isValidHex = (hex) => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
-    Object.entries(config.colors).forEach(([key, value]) => {
-        if (!isValidHex(value)) {
-            warnings.push(`Invalid color for ${key}! Using default.`);
-            config.colors[key] = getDefaultColor(key);
+    createFloatingElements();
+    setupEvents();
+}
+
+// Event Listeners
+function setupEvents() {
+    // Music Toggle
+    elements.music.btn.addEventListener('click', toggleMusic);
+
+    // Love Meter
+    elements.q2.meter.addEventListener('input', updateMeter);
+
+    // The "Runaway" No Buttons
+    // We use mouseover for desktop and touchstart for mobile
+    elements.q1.no.addEventListener('mouseover', (e) => moveButton(e.target));
+    elements.q1.no.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(e.target); });
+    elements.q3.no.addEventListener('mouseover', (e) => moveButton(e.target));
+    elements.q3.no.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(e.target); });
+
+    // Share Button
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            alert("Mission Link Copied to Clipboard! 🚀");
+        } catch (err) {
+            console.error('Failed to copy', err);
         }
     });
+}
 
-    // Validate animation values
-    if (parseFloat(config.animations.floatDuration) < 5) {
-        warnings.push("Float duration too short! Setting to 5s minimum.");
-        config.animations.floatDuration = "5s";
-    }
+// Logic: Navigation
+window.nextQuestion = function(step) {
+    // Hide all sections
+    document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+    
+    // Show requested section
+    if (step === 2) elements.q2.section.classList.remove('hidden');
+    if (step === 3) elements.q3.section.classList.remove('hidden');
 
-    if (config.animations.heartExplosionSize < 1 || config.animations.heartExplosionSize > 3) {
-        warnings.push("Heart explosion size should be between 1 and 3! Using default.");
-        config.animations.heartExplosionSize = 1.5;
-    }
-
-    // Log warnings if any
-    if (warnings.length > 0) {
-        console.warn("⚠️ Configuration Warnings:");
-        warnings.forEach(warning => console.warn("- " + warning));
+    // Attempt autoplay music on first interaction if not playing
+    if (config.music.autoplay && elements.music.audio.paused) {
+        toggleMusic();
     }
 }
 
-// Default color values
-function getDefaultColor(key) {
-    const defaults = {
-        backgroundStart: "#ffafbd",
-        backgroundEnd: "#ffc3a0",
-        buttonBackground: "#ff6b6b",
-        buttonHover: "#ff8787",
-        textColor: "#ff4757"
-    };
-    return defaults[key];
+// Logic: Love Meter
+function updateMeter() {
+    const val = parseInt(elements.q2.meter.value);
+    elements.q2.value.innerText = val + "%";
+    
+    if (val > 1000) {
+        elements.q2.msg.innerText = config.loveMessages.high;
+    } 
+    if (val > 5000) {
+        elements.q2.msg.innerText = config.loveMessages.extreme;
+    } 
+    if (val <= 1000 && val > 100) {
+        elements.q2.msg.innerText = config.loveMessages.normal;
+    }
 }
 
-// Set page title
-document.title = config.pageTitle;
+// Logic: Runaway Button
+function moveButton(btn) {
+    // Get viewport dimensions
+    const maxWidth = window.innerWidth - btn.offsetWidth;
+    const maxHeight = window.innerHeight - btn.offsetHeight;
 
-// Initialize the page content when DOM is loaded
-window.addEventListener('DOMContentLoaded', () => {
-    // Validate configuration first
-    validateConfig();
+    // Generate random position
+    const newX = Math.random() * maxWidth;
+    const newY = Math.random() * maxHeight;
 
-    // Set texts from config
-    document.getElementById('valentineTitle').textContent = `${config.valentineName}, my love...`;
+    // Apply new position
+    btn.style.position = 'fixed';
+    btn.style.left = newX + 'px';
+    btn.style.top = newY + 'px';
     
-    // Set first question texts
-    document.getElementById('question1Text').textContent = config.questions.first.text;
-    document.getElementById('yesBtn1').textContent = config.questions.first.yesBtn;
-    document.getElementById('noBtn1').textContent = config.questions.first.noBtn;
-    document.getElementById('secretAnswerBtn').textContent = config.questions.first.secretAnswer;
+    // Add a little spin effect
+    btn.style.transform = `rotate(${Math.random() * 360}deg)`;
+}
+
+// Logic: Celebration
+window.celebrate = function() {
+    document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+    elements.celeb.section.classList.remove('hidden');
     
-    // Set second question texts
-    document.getElementById('question2Text').textContent = config.questions.second.text;
-    document.getElementById('startText').textContent = config.questions.second.startText;
-    document.getElementById('nextBtn').textContent = config.questions.second.nextBtn;
-    
-    // Set third question texts
-    document.getElementById('question3Text').textContent = config.questions.third.text;
-    document.getElementById('yesBtn3').textContent = config.questions.third.yesBtn;
-    document.getElementById('noBtn3').textContent = config.questions.third.noBtn;
+    // Trigger Explosion
+    for(let i=0; i<50; i++) {
+        createHeart(true);
+    }
+}
 
-    // Create initial floating elements
-    createFloatingElements();
-
-    // Setup music player
-    setupMusicPlayer();
-
-    // Setup Share Button
-    setupShareButton();
-});
-
-// Create floating hearts and bears
+// Logic: Floating Elements
 function createFloatingElements() {
     const container = document.querySelector('.floating-elements');
+    const items = [...config.floatingEmojis.hearts, ...config.floatingEmojis.bears];
+
+    // Initial batch
+    for(let i=0; i<15; i++) {
+        createHeart(false, items, container);
+    }
+
+    // Continuous creation
+    setInterval(() => createHeart(false, items, container), 2000);
+}
+
+function createHeart(isExplosion = false, items = null, container = null) {
+    if (!container) container = document.querySelector('.floating-elements');
+    if (!items) items = [...config.floatingEmojis.hearts];
+
+    const el = document.createElement('div');
+    el.innerHTML = items[Math.floor(Math.random() * items.length)];
+    el.className = 'heart';
     
-    // Create hearts
-    config.floatingEmojis.hearts.forEach(heart => {
-        const div = document.createElement('div');
-        div.className = 'heart';
-        div.innerHTML = heart;
-        setRandomPosition(div);
-        container.appendChild(div);
-    });
-
-    // Create bears
-    config.floatingEmojis.bears.forEach(bear => {
-        const div = document.createElement('div');
-        div.className = 'bear';
-        div.innerHTML = bear;
-        setRandomPosition(div);
-        container.appendChild(div);
-    });
-}
-
-// Set random position for floating elements
-function setRandomPosition(element) {
-    element.style.left = Math.random() * 100 + 'vw';
-    element.style.animationDelay = Math.random() * 5 + 's';
-    element.style.animationDuration = 10 + Math.random() * 20 + 's';
-}
-
-// Function to show next question
-function showNextQuestion(questionNumber) {
-    window.appState.setState({ currentStep: questionNumber });
-}
-
-// Function to move the "No" button when clicked
-function moveButton(button) {
-    const x = Math.random() * (window.innerWidth - button.offsetWidth);
-    const y = Math.random() * (window.innerHeight - button.offsetHeight);
-    button.style.position = 'fixed';
-    button.style.left = x + 'px';
-    button.style.top = y + 'px';
-}
-
-// Love meter functionality
-const loveMeter = document.getElementById('loveMeter');
-const loveValue = document.getElementById('loveValue');
-const extraLove = document.getElementById('extraLove');
-
-function setInitialPosition() {
-    loveMeter.value = 100;
-    loveValue.textContent = 100;
-    loveMeter.style.width = '100%';
-}
-
-loveMeter.addEventListener('input', () => {
-    const value = parseInt(loveMeter.value);
-    loveValue.textContent = value;
-    window.appState.setState({ loveValue: value });
+    const startLeft = Math.random() * 100;
     
-    if (value > 100) {
-        extraLove.classList.remove('hidden');
-        const overflowPercentage = (value - 100) / 9900;
-        const extraWidth = overflowPercentage * window.innerWidth * 0.8;
-        loveMeter.style.width = `calc(100% + ${extraWidth}px)`;
-        loveMeter.style.transition = 'width 0.3s';
-        
-        // Show different messages based on the value
-        if (value >= 5000) {
-            extraLove.classList.add('super-love');
-            extraLove.textContent = config.loveMessages.extreme;
-        } else if (value > 1000) {
-            extraLove.classList.remove('super-love');
-            extraLove.textContent = config.loveMessages.high;
-        } else {
-            extraLove.classList.remove('super-love');
-            extraLove.textContent = config.loveMessages.normal;
-        }
+    el.style.left = startLeft + 'vw';
+    el.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+    
+    if (isExplosion) {
+        el.style.top = '50%';
+        el.style.left = '50%';
+        el.style.transition = 'all 1s ease-out';
+        setTimeout(() => {
+            el.style.transform = `translate(${Math.random()*400 - 200}px, ${Math.random()*400 - 200}px)`;
+            el.style.opacity = 0;
+        }, 50);
+        setTimeout(() => el.remove(), 1000);
     } else {
-        extraLove.classList.add('hidden');
-        extraLove.classList.remove('super-love');
-        loveMeter.style.width = '100%';
+        // Standard floating
+        el.style.top = '100vh';
+        el.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        setTimeout(() => el.remove(), 20000); // Clean up
     }
-});
-
-// Initialize love meter
-window.addEventListener('DOMContentLoaded', setInitialPosition);
-window.addEventListener('load', setInitialPosition);
-
-// Celebration function
-function celebrate() {
-    window.appState.setState({ currentStep: 'celebration' });
     
-    // Set celebration messages
-    document.getElementById('celebrationTitle').textContent = config.celebration.title;
-    document.getElementById('celebrationMessage').textContent = config.celebration.message;
-    document.getElementById('celebrationEmojis').textContent = config.celebration.emojis;
-    
-    // Create heart explosion effect
-    createHeartExplosion();
+    container.appendChild(el);
 }
 
-// Create heart explosion animation
-function createHeartExplosion() {
-    for (let i = 0; i < 50; i++) {
-        const heart = document.createElement('div');
-        const randomHeart = config.floatingEmojis.hearts[Math.floor(Math.random() * config.floatingEmojis.hearts.length)];
-        heart.innerHTML = randomHeart;
-        heart.className = 'heart';
-        document.querySelector('.floating-elements').appendChild(heart);
-        setRandomPosition(heart);
+// Logic: Music
+function toggleMusic() {
+    const audio = elements.music.audio;
+    if (audio.paused) {
+        audio.play().then(() => {
+            elements.music.btn.innerText = config.music.stopText;
+        }).catch(e => console.log("Audio play failed (browser policy):", e));
+    } else {
+        audio.pause();
+        elements.music.btn.innerText = config.music.startText;
     }
 }
 
-// Music Player Setup
-function setupMusicPlayer() {
-    const musicControls = document.getElementById('musicControls');
-    const musicToggle = document.getElementById('musicToggle');
-    const bgMusic = document.getElementById('bgMusic');
-    const musicSource = document.getElementById('musicSource');
-
-    // Only show controls if music is enabled in config
-    if (!config.music.enabled) {
-        musicControls.style.display = 'none';
-        return;
-    }
-
-    // Set music source and volume
-    musicSource.src = config.music.musicUrl;
-    bgMusic.volume = config.music.volume || 0.5;
-    bgMusic.load();
-
-    // Try autoplay if enabled
-    if (config.music.autoplay) {
-        const playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                window.appState.setState({ isMusicPlaying: true });
-            }).catch(error => {
-                console.log("Autoplay prevented by browser");
-            });
-        }
-    }
-
-    // Toggle music on button click
-    musicToggle.addEventListener('click', () => {
-        if (bgMusic.paused) {
-            bgMusic.play();
-            window.appState.setState({ isMusicPlaying: true });
-        } else {
-            bgMusic.pause();
-            window.appState.setState({ isMusicPlaying: false });
-        }
-    });
-}
-
-// Share Link Setup
-function setupShareButton() {
-    const shareBtn = document.getElementById('shareBtn');
-    if (!shareBtn) return;
-
-    shareBtn.addEventListener('click', () => {
-        window.ValentineConfig.copyShareLink().then(success => {
-            if (success) {
-                const originalText = shareBtn.textContent;
-                shareBtn.textContent = "Link Copied! ❤️";
-                setTimeout(() => {
-                    shareBtn.textContent = originalText;
-                }, 2000);
-            }
-        });
-    });
-}
+// Boot
+window.onload = init;
