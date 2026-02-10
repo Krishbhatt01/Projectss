@@ -1,17 +1,12 @@
-/* CSS Variables */
+/* Variables - Orange Theme for Stuti */
 :root {
-    --background-color-1: #ff758c;
-    --background-color-2: #ff7eb3;
-    --button-color: #ff4757;
-    --button-hover: #ff6b81;
+    --bg-1: #ff9966;  /* Orange */
+    --bg-2: #ff5e62;  /* Pink/Red */
+    --glass-bg: rgba(255, 255, 255, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.4);
     --text-color: #ffffff;
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.3);
-    --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    
-    /* Animations */
-    --float-duration: 15s;
-    --float-distance: 50px;
+    --primary-btn: #ffffff;
+    --primary-btn-text: #ff5e62;
 }
 
 body {
@@ -20,178 +15,131 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--background-color-1), var(--background-color-2));
-    font-family: 'Poppins', Arial, sans-serif;
-    overflow: hidden; /* Prevent scrollbars from floating elements */
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    font-family: 'Poppins', sans-serif;
     color: var(--text-color);
+    overflow: hidden;
+    touch-action: manipulation; /* Improves touch response */
 }
 
-/* The Glass Card Effect */
 .container {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    padding: 3rem;
-    border-radius: 25px;
-    box-shadow: var(--shadow);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 2px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     text-align: center;
     width: 90%;
     max-width: 500px;
     position: relative;
     z-index: 10;
-    transition: transform 0.3s ease;
-}
-
-.container:hover {
-    transform: translateY(-5px);
-}
-
-/* Floating Background Elements */
-.floating-elements {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.heart, .bear {
-    position: absolute;
-    font-size: 2rem;
-    opacity: 0.7;
-    animation: float var(--float-duration) ease-in-out infinite;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
-    25% { transform: translateY(-20px) translateX(var(--float-distance)) rotate(10deg); }
-    50% { transform: translateY(0) translateX(0) rotate(-10deg); }
-    75% { transform: translateY(20px) translateX(calc(var(--float-distance) * -1)) rotate(5deg); }
+    transition: all 0.5s ease;
 }
 
 /* Typography */
 h1 {
     font-family: 'Dancing Script', cursive;
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
 }
 
 /* Buttons */
-.button-group {
+.btn-group {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-.cute-btn {
-    background: var(--button-color);
+.btn {
+    background: var(--primary-btn);
+    color: var(--primary-btn-text);
     border: none;
-    padding: 15px 30px;
+    padding: 12px 30px;
     border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* The "No" Button Style */
+#noBtn {
+    position: relative; /* Default position */
+    background: rgba(255, 255, 255, 0.3);
     color: white;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    min-width: 120px;
+    border: 1px solid white;
+    transition: all 0.1s ease; /* Fast transition for smooth dodging */
 }
 
-.cute-btn:hover {
-    background: var(--button-hover);
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+/* Floating Emojis */
+.floating-elements {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
 }
 
-/* The Secret Button */
-.secret-answer {
-    margin-top: 20px;
-    opacity: 0;
-    transition: opacity 0.5s;
-    pointer-events: none; /* Hidden until needed */
+.emoji {
+    position: absolute;
+    font-size: 2rem;
+    animation: floatUp linear infinite;
+    opacity: 0.6;
 }
 
-.container:hover .secret-answer {
-    opacity: 1;
-    pointer-events: auto;
+@keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
 }
 
-.secret-answer .cute-btn.special {
-    background: rgba(255,255,255,0.2);
-    font-size: 0.9rem;
-    padding: 8px 15px;
-    border: 1px solid rgba(255,255,255,0.5);
-}
-
-/* Range Slider (Love Meter) */
-.love-meter {
-    margin: 30px 0;
-}
-
-.slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 15px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.3);
-    outline: none;
-    transition: opacity .2s;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: var(--button-color);
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    border: 3px solid white;
-}
-
-/* Music Controls */
-.music-controls {
+/* Music Control */
+.music-control {
     position: fixed;
     top: 20px;
     right: 20px;
+    background: rgba(255,255,255,0.3);
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
     z-index: 100;
-}
-
-.music-btn {
-    background: rgba(255, 255, 255, 0.25);
+    font-weight: bold;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255,255,255,0.4);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
 }
 
-.music-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
+.hidden { display: none; }
+.fade-in { animation: fadeIn 0.8s ease forwards; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Utilities */
-.hidden { display: none !important; }
-
-/* Mobile */
+/* Responsive */
 @media (max-width: 480px) {
     h1 { font-size: 2.5rem; }
-    .container { padding: 1.5rem; width: 85%; }
-    .cute-btn { padding: 12px 24px; font-size: 1rem; }
+    .container { padding: 1.5rem; }
+    .btn { width: 100%; margin-bottom: 10px; }
 }
