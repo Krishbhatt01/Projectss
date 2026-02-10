@@ -20,8 +20,8 @@ const CONFIG = {
     // The Sequence of interactions
     questions: {
         intro: {
-            title: "Warning: High Levels of Cuteness Detected! ⚠️",
-            text: "System identifying user... Are you the D1 Badminton star with the cutest dimples?",
+            title: "Warning: Extremely pretty woman with big brain deteched! ",
+            text: "System identifying user... Are you the D1 Badminton star with the cutest dimples and the most adorable smile?",
             btn: "Confirm Identity 🏸"
         },
         
@@ -29,7 +29,7 @@ const CONFIG = {
         quiz: [
             {
                 q: "What's the perfect date after a long day of coding?",
-                btn1: "Spicy Indian Chaat 🌶️",
+                btn1: "Spicy Chaat and Asian at Din Tai Fung",
                 btn2: "Belgian Waffles & Tres Leches 🍰",
                 response: "Correct! We're getting both. Sweet and Spicy, just like you."
             },
