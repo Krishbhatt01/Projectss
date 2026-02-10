@@ -41,8 +41,8 @@ const CONFIG = {
             },
             {
                 q: "Security Question: What makes you laugh the most?",
-                btn1: "My terrible jokes",
-                btn2: "Modi Ji Memes 🇮🇳",
+                btn1: "My extremely funny jokes",
+                btn2: "Modi Ji Memes",
                 response: "Mitron! You have passed the security check."
             }
         ],
@@ -50,7 +50,7 @@ const CONFIG = {
         // The "Truth" Section (F1 & Driving)
         truth: {
             title: "A Serious Accusation...",
-            text: "I know deep down you love F1, even if you deny it. 🏎️",
+            text: "I know deep down you love F1, even if you deny it.",
             subtext: "Will you accompany me to watch Ferrari lose all their races this year? (Also, I'm a better driver than you. Deal with it.)",
             btn: "Fine, I admit it 🏁"
         },
@@ -76,7 +76,7 @@ const CONFIG = {
     // Celebration message
     celebration: {
         title: "I knew you'd say Yes! 🎉",
-        message: "Get ready for Chaat, Waffles, and me annoying you about F1 forever. I love you, Stuti! ❤️",
+        message: "Get ready for Chaat, Waffles, and me annoying you about F1 forever. I love you, Stuti! ❤️ and lewis hamilton obviously Thank you for making college colorful and worthwhile",
         emojis: "🏸🧸🏎️🌹🎁💑" 
     },
 
