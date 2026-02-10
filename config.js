@@ -21,7 +21,7 @@ const CONFIG = {
     questions: {
         intro: {
             title: "Warning: Extremely pretty woman with big brain deteched! ",
-            text: "System identifying user... Are you the D1 Badminton star with the cutest dimples and the most adorable smile?",
+            text: "System identifying user... Are you the D1 Badminton star with the cutest dimples and the most adorable smile?", 
             btn: "Confirm Identity 🏸"
         },
         
