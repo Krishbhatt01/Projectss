@@ -7,14 +7,22 @@ let quizStep = 0;
 
 // Initialize
 function init() {
-    // Set Music
-    document.getElementById('musicSource').src = config.music.musicUrl;
-    bgMusic.volume = config.music.volume;
+    // 1. Safety Check: Ensure the mainCard exists (If this fails, index.html wasn't updated)
+    if (!mainCard) {
+        alert("Error: 'mainCard' not found. Please make sure you updated index.html!");
+        return;
+    }
 
-    // Start floating emojis
+    // 2. Set Music
+    if (config.music && config.music.musicUrl) {
+        document.getElementById('musicSource').src = config.music.musicUrl;
+        bgMusic.volume = config.music.volume || 0.5;
+    }
+
+    // 3. Start floating emojis
     createFloatingEmojis();
 
-    // Show Intro
+    // 4. Show Intro
     showIntro();
 }
 
@@ -23,21 +31,38 @@ function showIntro() {
     mainCard.innerHTML = `
         <h1>${config.questions.intro.title}</h1>
         <p>${config.questions.intro.text}</p>
-        <button class="btn" onclick="startQuiz()">${config.questions.intro.btn}</button>
+        <button class="btn" id="startBtn">${config.questions.intro.btn}</button>
     `;
+    document.getElementById('startBtn').addEventListener('click', startQuiz);
 }
 
 // 2. Quiz Logic
 function startQuiz() {
     if (quizStep < config.questions.quiz.length) {
         const q = config.questions.quiz[quizStep];
+        
+        // We create buttons dynamically to prevent quote issues
         mainCard.innerHTML = `
             <h2 class="fade-in">${q.q}</h2>
-            <div class="btn-group fade-in">
-                <button class="btn" onclick="handleQuizResponse('${q.response}')">${q.btn1}</button>
-                <button class="btn" onclick="handleQuizResponse('${q.response}')">${q.btn2}</button>
-            </div>
+            <div class="btn-group fade-in" id="quizBtns"></div>
         `;
+        
+        const btnContainer = document.getElementById('quizBtns');
+        
+        // Button 1
+        const btn1 = document.createElement('button');
+        btn1.className = 'btn';
+        btn1.innerText = q.btn1;
+        btn1.onclick = () => handleQuizResponse(q.response);
+        btnContainer.appendChild(btn1);
+
+        // Button 2
+        const btn2 = document.createElement('button');
+        btn2.className = 'btn';
+        btn2.innerText = q.btn2;
+        btn2.onclick = () => handleQuizResponse(q.response);
+        btnContainer.appendChild(btn2);
+
     } else {
         showTruth();
     }
@@ -48,7 +73,7 @@ function handleQuizResponse(response) {
     setTimeout(() => {
         quizStep++;
         startQuiz();
-    }, 2000);
+    }, 2500); // Increased wait time slightly so she can read it
 }
 
 // 3. Truth Section (F1/Driving)
@@ -57,8 +82,9 @@ function showTruth() {
         <h1 class="fade-in">${config.questions.truth.title}</h1>
         <p class="fade-in">${config.questions.truth.text}</p>
         <p class="fade-in" style="font-size: 0.9rem; font-style: italic;">${config.questions.truth.subtext}</p>
-        <button class="btn" onclick="showGirlfriendProposal()">${config.questions.truth.btn}</button>
+        <button class="btn" id="truthBtn">${config.questions.truth.btn}</button>
     `;
+    document.getElementById('truthBtn').addEventListener('click', showGirlfriendProposal);
 }
 
 // 4. Girlfriend Proposal (With Dodging Button)
@@ -68,23 +94,23 @@ function showGirlfriendProposal() {
         <p class="fade-in">${config.questions.girlfriend.text}</p>
         <h2 class="fade-in">${config.questions.girlfriend.question}</h2>
         <div class="btn-group">
-            <button class="btn" onclick="showValentineProposal()">${config.questions.girlfriend.yesBtn}</button>
+            <button class="btn" id="gfYesBtn">${config.questions.girlfriend.yesBtn}</button>
             <button class="btn" id="noBtn">${config.questions.girlfriend.noBtn}</button>
         </div>
     `;
 
+    document.getElementById('gfYesBtn').addEventListener('click', showValentineProposal);
+    
     // Attach Dodge Logic
     setTimeout(() => {
         const noBtn = document.getElementById('noBtn');
-        
-        // Desktop: Mouseover
-        noBtn.addEventListener('mouseover', (e) => dodgeButton(e.target));
-        
-        // Mobile: Touch (prevent clicking)
-        noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault(); 
-            dodgeButton(e.target);
-        });
+        if(noBtn) {
+            noBtn.addEventListener('mouseover', (e) => dodgeButton(e.target));
+            noBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault(); 
+                dodgeButton(e.target);
+            });
+        }
     }, 100);
 }
 
@@ -113,13 +139,16 @@ function showValentineProposal() {
         <h1 class="fade-in">Wait! One more thing...</h1>
         <h2 class="fade-in">${config.questions.valentine.text}</h2>
         <div class="btn-group">
-            <button class="btn" onclick="showCelebration()">${config.questions.valentine.yesBtn}</button>
-            <button class="btn" id="finalNo" onclick="dodgeButton(this)">${config.questions.valentine.noBtn}</button>
+            <button class="btn" id="valYesBtn">${config.questions.valentine.yesBtn}</button>
+            <button class="btn" id="finalNo">${config.questions.valentine.noBtn}</button>
         </div>
     `;
     
-    // Attach dodge to the final no button too
-    document.getElementById('finalNo').addEventListener('mouseover', (e) => dodgeButton(e.target));
+    document.getElementById('valYesBtn').addEventListener('click', showCelebration);
+    
+    const finalNo = document.getElementById('finalNo');
+    finalNo.addEventListener('mouseover', (e) => dodgeButton(e.target));
+    finalNo.addEventListener('touchstart', (e) => { e.preventDefault(); dodgeButton(e.target); });
 }
 
 // 6. Celebration
@@ -135,6 +164,8 @@ function showCelebration() {
 // Floating Emojis
 function createFloatingEmojis() {
     const container = document.getElementById('floatingContainer');
+    if (!container) return; // Safety check
+
     const emojis = [...config.floatingEmojis.hearts, ...config.floatingEmojis.bears];
     
     setInterval(() => {
@@ -171,15 +202,17 @@ function startConfetti() {
 }
 
 // Music Toggle
-musicBtn.addEventListener('click', () => {
-    if (bgMusic.paused) {
-        bgMusic.play();
-        musicBtn.innerText = config.music.stopText;
-    } else {
-        bgMusic.pause();
-        musicBtn.innerText = config.music.startText;
-    }
-});
+if(musicBtn) {
+    musicBtn.addEventListener('click', () => {
+        if (bgMusic.paused) {
+            bgMusic.play();
+            musicBtn.innerText = config.music.stopText;
+        } else {
+            bgMusic.pause();
+            musicBtn.innerText = config.music.startText;
+        }
+    });
+}
 
 // Start
 init();
